@@ -10,6 +10,7 @@ var vidId;
 var vidInfo;
 
 function googleApiClientReady() {
+    console.log("Google api loaded");
     gapi.client.setApiKey(apiKey);
     gapi.client.load('youtube', 'v3', function() {
         request = gapi.client.youtube.search.list({
@@ -35,19 +36,16 @@ function getEmbedCode(id){
     return baseURL + id.toString();
 }
 
-var returnArray = [4];
-
 function getVidInfo(VidId){
     var vidRequest;
     var vidRequestResponse;
+    var returnArray = [];
+    var canReturn = false;
     vidRequest = gapi.client.youtube.videos.list({
         part: 'snippet',
         id: VidId
-    });
-    console.log(vidRequest);
-    vidRequest.execute(function(response){
-        //console.log(response.result);
-        if(response.pageInfo.totalResults != 0) {
+    }).then(function(response){
+        if(response.result.pageInfo.totalResults != 0) {
             returnArray[0] = response.result.items[0].snippet.title;
             returnArray[1] = response.result.items[0].snippet.description;
             returnArray[2] = response.result.items[0].snippet.publishedAt;
@@ -58,8 +56,18 @@ function getVidInfo(VidId){
             else {
                 returnArray[3] = response.result.items[0].snippet.thumbnails.standard.url;
             }
-           // console.log(returnArray);
-            return returnArray;
+            console.log(returnArray);
         }
+        else{
+            returnArray[0] = false;
+            returnArray[1] = false;
+            returnArray[2] = false;
+            returnArray[3] = false;
+        }
+        return returnArray;
+    }).then(function(array){    
+        canReturn = true;
+        console.log(returnArray);
     });
+    //return returnArray;
 }
